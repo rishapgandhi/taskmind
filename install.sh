@@ -60,8 +60,21 @@ echo "[4/7] Setting up Python environment..."
 python3 -m venv "$INSTALL_DIR/venv"
 source "$INSTALL_DIR/venv/bin/activate"
 pip install --quiet --upgrade pip
-pip install --quiet "$SCRIPT_DIR"
+pip install --quiet -e "$SCRIPT_DIR"
 pip install --quiet fastapi uvicorn
+
+# Install git hook so 'git pull' auto-restarts daemon
+if [ -d "$SCRIPT_DIR/.git/hooks" ]; then
+    cat > "$SCRIPT_DIR/.git/hooks/post-merge" << 'HOOK'
+#!/bin/bash
+if command -v taskmind &>/dev/null; then
+    taskmind stop 2>/dev/null
+    taskmind start 2>/dev/null
+    echo "✅ TaskMind daemon restarted with latest code."
+fi
+HOOK
+    chmod +x "$SCRIPT_DIR/.git/hooks/post-merge"
+fi
 
 # --- 5. Config files ---
 echo "[5/7] Setting up configuration..."
