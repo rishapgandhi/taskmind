@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS activities (
     window_class TEXT,
     project_name TEXT,
     duration_seconds INTEGER DEFAULT 10,
-    is_idle INTEGER DEFAULT 0
+    is_idle INTEGER DEFAULT 0,
+    browser_url TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS timesheet_entries (
@@ -94,16 +95,20 @@ def init_db():
     """Initialize database schema."""
     conn = get_db()
     conn.executescript(SCHEMA)
+    # Migration: add browser_url column if missing
+    cols = [r[1] for r in conn.execute("PRAGMA table_info(activities)").fetchall()]
+    if "browser_url" not in cols:
+        conn.execute("ALTER TABLE activities ADD COLUMN browser_url TEXT DEFAULT ''")
     conn.commit()
     conn.close()
 
 
-def insert_activity(timestamp, window_title, app_name, window_class, project_name, duration, is_idle=False):
+def insert_activity(timestamp, window_title, app_name, window_class, project_name, duration, is_idle=False, browser_url=""):
     """Insert an activity record."""
     conn = get_db()
     conn.execute(
-        "INSERT INTO activities (timestamp, window_title, app_name, window_class, project_name, duration_seconds, is_idle) VALUES (?,?,?,?,?,?,?)",
-        (timestamp, window_title, app_name, window_class, project_name, duration, int(is_idle)),
+        "INSERT INTO activities (timestamp, window_title, app_name, window_class, project_name, duration_seconds, is_idle, browser_url) VALUES (?,?,?,?,?,?,?,?)",
+        (timestamp, window_title, app_name, window_class, project_name, duration, int(is_idle), browser_url),
     )
     conn.commit()
     conn.close()

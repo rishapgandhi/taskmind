@@ -129,6 +129,7 @@ def run_daemon():
                         project,
                         interval,
                         is_idle=False,
+                        browser_url=window.get("browser_url", ""),
                     )
 
                     # Auto-record meetings (checks ALL open windows, not just focused)

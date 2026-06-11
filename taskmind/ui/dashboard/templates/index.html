@@ -279,24 +279,20 @@ async function doSearch() {
 async function loadSettings() {
   const data = await api('/api/projects');
   document.getElementById('settings-projects').innerHTML = (data.projects || []).map((p, i) => {
-    const keywords = (p.matchers||[]).map(m=>(m.contains||m.equals||[]).join(', ')).join('; ');
-    return `<li><span><strong>${p.name}</strong> — <span id="kw-display-${i}">${keywords}</span></span><span><button class="btn btn-sm" style="background:var(--border);color:var(--text);margin-right:6px" onclick="editProject(${i})">Edit</button><button class="btn btn-danger btn-sm" onclick="removeProject(${i})">Remove</button></span></li>`;
+    const titleMatcher = (p.matchers||[]).find(m => m.type === 'window_title');
+    const keywords = titleMatcher ? (titleMatcher.contains||[]).join(', ') : (p.matchers||[]).map(m=>(m.contains||m.equals||[]).join(', ')).join('; ');
+    return `<li><span><strong>${p.name}</strong> — </span><input id="kw-input-${i}" value="${keywords.replace(/"/g,'&quot;')}" style="flex:1;margin:0 10px" onkeydown="if(event.key==='Enter')saveProject(${i})"><span><button class="btn btn-sm btn-primary" onclick="saveProject(${i})">Save</button><button class="btn btn-danger btn-sm" style="margin-left:6px" onclick="removeProject(${i})">Remove</button></span></li>`;
   }).join('') || '<li style="color:var(--muted)">No projects configured</li>';
 }
 
-async function editProject(index) {
-  const data = await api('/api/projects');
-  const p = data.projects[index];
-  const titleMatcher = (p.matchers||[]).find(m => m.type === 'window_title');
-  const current = titleMatcher ? (titleMatcher.contains||[]).join(', ') : '';
-  const newKw = prompt('Edit keywords for "' + p.name + '" (comma-separated):', current);
-  if (newKw === null) return;
-  const keywords = newKw.split(',').map(s => s.trim()).filter(Boolean);
+async function saveProject(index) {
+  const input = document.getElementById('kw-input-' + index);
+  const keywords = input.value.split(',').map(s => s.trim()).filter(Boolean);
   if (!keywords.length) return alert('Keywords cannot be empty');
   const res = await fetch('/api/projects/edit', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({index, keywords})});
   const result = await res.json();
   if (result.error) alert(result.error);
-  else loadSettings();
+  else { input.style.borderColor = '#22c55e'; setTimeout(() => input.style.borderColor = '', 1000); }
 }
 
 async function addProject() {
