@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaskMind — Automatic Timesheet Generator & Activity Tracker for Linux</title>
+  <meta name="description" content="TaskMind is a privacy-first, lightweight activity tracker that auto-generates timesheets for Linux. No cloud, no GPU, auto-records meetings. Open source.">
+  <meta name="keywords" content="taskmind, automatic timesheet, activity tracker, linux time tracking, privacy time tracker, auto timesheet generator, meeting recorder linux, omi.me alternative linux">
+  <meta property="og:title" content="TaskMind — Auto Timesheet Generator for Linux">
+  <meta property="og:description" content="Privacy-first activity tracker that auto-fills your timesheet. Records meetings, tracks window activity, generates daily recaps. Runs locally on 4GB RAM.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rishapgandhi.github.io/taskmind/">
+  <link rel="canonical" href="https://rishapgandhi.github.io/taskmind/">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#0a0a0f; color:#e0e0e0; line-height:1.6; }
+    .hero { text-align:center; padding:80px 20px; max-width:800px; margin:0 auto; }
+    h1 { font-size:2.5rem; margin-bottom:16px; color:#fff; }
+    .tagline { font-size:1.2rem; color:#888; margin-bottom:32px; }
+    .badges { margin:24px 0; }
+    .badges img { margin:4px; }
+    .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:24px; max-width:900px; margin:40px auto; padding:0 20px; }
+    .feature { background:#12121a; padding:24px; border-radius:12px; border:1px solid #222; }
+    .feature h3 { color:#4fc3f7; margin-bottom:8px; }
+    .cta { margin:40px 0; }
+    .cta a { display:inline-block; background:#4fc3f7; color:#000; padding:12px 32px; border-radius:8px; text-decoration:none; font-weight:bold; margin:8px; }
+    .cta a.secondary { background:transparent; border:1px solid #4fc3f7; color:#4fc3f7; }
+    footer { text-align:center; padding:40px; color:#555; }
+    code { background:#1a1a2a; padding:2px 6px; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <h1>🧠 TaskMind</h1>
+    <p class="tagline">Automatic timesheet generator & activity tracker for Linux.<br>Privacy-first. No cloud. No GPU. Under 100MB RAM.</p>
+    <div class="badges">
+      <img src="https://img.shields.io/github/v/release/rishapgandhi/taskmind" alt="Release">
+      <img src="https://img.shields.io/github/license/rishapgandhi/taskmind" alt="License">
+      <img src="https://img.shields.io/badge/platform-Linux-blue" alt="Platform">
+      <img src="https://img.shields.io/badge/RAM-<100MB-green" alt="RAM">
+    </div>
+    <div class="cta">
+      <a href="https://github.com/rishapgandhi/taskmind">⭐ GitHub Repo</a>
+      <a href="https://github.com/rishapgandhi/taskmind/wiki" class="secondary">📖 Documentation</a>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <h3>📊 Auto Timesheet</h3>
+      <p>Tracks your window activity and generates timesheets automatically. Never forget what you worked on.</p>
+    </div>
+    <div class="feature">
+      <h3>🎙️ Meeting Recording</h3>
+      <p>Auto-detects Meet/Zoom/Teams and records both sides. Compressed to tiny OGG files (~1.7MB/hr).</p>
+    </div>
+    <div class="feature">
+      <h3>🔒 100% Private</h3>
+      <p>Runs entirely on your machine. Zero cloud, zero network calls, zero telemetry. SQLite database.</p>
+    </div>
+    <div class="feature">
+      <h3>🪶 Lightweight</h3>
+      <p>Under 100MB RAM. No GPU. Works on 4GB machines. Ubuntu 18.04+ compatible.</p>
+    </div>
+    <div class="feature">
+      <h3>📈 Web Dashboard</h3>
+      <p>Beautiful dark-theme dashboard at localhost:7890. Today, weekly, monthly views with charts.</p>
+    </div>
+    <div class="feature">
+      <h3>🔌 Export Anywhere</h3>
+      <p>Export to CSV, JSON, Clockify, Toggl, or Jira Tempo. Fits your existing workflow.</p>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h2>Quick Install</h2>
+    <p style="margin:16px 0"><code>git clone https://github.com/rishapgandhi/taskmind && cd taskmind && bash install.sh</code></p>
+    <p style="color:#888">One command. Interactive setup. Ready in 30 seconds.</p>
+  </div>
+
+  <footer>
+    <p>Built by <a href="https://github.com/rishapgandhi" style="color:#4fc3f7">Rishap Gandhi</a> • MIT License • <a href="https://github.com/rishapgandhi/taskmind" style="color:#4fc3f7">View on GitHub</a></p>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "TaskMind",
+    "description": "Automatic timesheet generator and activity tracker for Linux. Privacy-first, lightweight, auto-records meetings.",
+    "url": "https://rishapgandhi.github.io/taskmind/",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Linux",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Rishap Gandhi", "url": "https://github.com/rishapgandhi" },
+    "softwareVersion": "1.0.3",
+    "license": "https://opensource.org/licenses/MIT",
+    "codeRepository": "https://github.com/rishapgandhi/taskmind"
+  }
+  </script>
+</body>
+</html>

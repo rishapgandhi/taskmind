@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://rishapgandhi.github.io/taskmind/sitemap.xml

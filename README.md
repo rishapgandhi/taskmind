@@ -2,6 +2,8 @@
 
 **What did I do today?** TaskMind tracks your work and records your meetings, then shows both on one timeline. Free, open source (MIT), runs on Mac, Windows and Linux. No meeting bots, no subscription, and your data stays on your computer.
 
+> **Looking for TaskMind v1** (Python, Linux only)? It lives on the [`v1` branch](https://github.com/rishapgandhi/taskmind/tree/v1) and [release v1.0.4](https://github.com/rishapgandhi/taskmind/releases/tag/v1.0.4). v2 can import your v1 data (Settings → Storage and backup).
+
 > Status: **alpha**. All features have a first version; testing on Windows, Ubuntu and macOS is under way. See [docs/PLAN.md](docs/PLAN.md).
 
 ## Features
