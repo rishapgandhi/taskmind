@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-save-timesheet"
+description = "Enables the save_timesheet command without any pre-configured scope."
+commands.allow = ["save_timesheet"]
+
+[[permission]]
+identifier = "deny-save-timesheet"
+description = "Denies the save_timesheet command without any pre-configured scope."
+commands.deny = ["save_timesheet"]

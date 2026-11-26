@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-day-action-items"
+description = "Enables the day_action_items command without any pre-configured scope."
+commands.allow = ["day_action_items"]
+
+[[permission]]
+identifier = "deny-day-action-items"
+description = "Denies the day_action_items command without any pre-configured scope."
+commands.deny = ["day_action_items"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-check-notes-provider"
+description = "Enables the check_notes_provider command without any pre-configured scope."
+commands.allow = ["check_notes_provider"]
+
+[[permission]]
+identifier = "deny-check-notes-provider"
+description = "Denies the check_notes_provider command without any pre-configured scope."
+commands.deny = ["check_notes_provider"]

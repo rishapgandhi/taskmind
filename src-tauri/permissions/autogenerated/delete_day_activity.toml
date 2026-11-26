@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-delete-day-activity"
+description = "Enables the delete_day_activity command without any pre-configured scope."
+commands.allow = ["delete_day_activity"]
+
+[[permission]]
+identifier = "deny-delete-day-activity"
+description = "Denies the delete_day_activity command without any pre-configured scope."
+commands.deny = ["delete_day_activity"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-search-transcripts"
+description = "Enables the search_transcripts command without any pre-configured scope."
+commands.allow = ["search_transcripts"]
+
+[[permission]]
+identifier = "deny-search-transcripts"
+description = "Denies the search_transcripts command without any pre-configured scope."
+commands.deny = ["search_transcripts"]

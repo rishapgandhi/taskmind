@@ -1,0 +1,55 @@
+/// App commands are declared here so each window only gets the commands its capability file grants.
+const COMMANDS: &[&str] = &[
+    "recorder_state",
+    "recorder_start",
+    "recorder_stop",
+    "recorder_pause",
+    "recorder_resume",
+    "show_main_window",
+    "app_info",
+    "list_meetings",
+    "reveal_meeting",
+    "get_meeting",
+    "rename_meeting",
+    "delete_meeting",
+    "retranscribe_meeting",
+    "search_transcripts",
+    "list_models",
+    "download_model",
+    "delete_model",
+    "transcription_status",
+    "get_notes",
+    "generate_notes",
+    "save_notes",
+    "set_notes_key",
+    "has_notes_key",
+    "day_action_items",
+    "check_notes_provider",
+    "backup_now",
+    "restore_backup",
+    "import_v1_status",
+    "run_import_v1",
+    "recordings_folder",
+    "tracking_status",
+    "request_tracking_permission",
+    "day_report",
+    "range_report",
+    "delete_day_activity",
+    "list_projects",
+    "save_project",
+    "delete_project",
+    "get_timesheet",
+    "save_timesheet",
+    "reset_timesheet",
+    "export_timesheet",
+    "get_setting",
+    "set_setting",
+];
+
+fn main() {
+    tauri_build::try_build(
+        tauri_build::Attributes::new()
+            .app_manifest(tauri_build::AppManifest::new().commands(COMMANDS)),
+    )
+    .expect("failed to run tauri-build");
+}

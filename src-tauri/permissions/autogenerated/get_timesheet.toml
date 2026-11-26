@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-timesheet"
+description = "Enables the get_timesheet command without any pre-configured scope."
+commands.allow = ["get_timesheet"]
+
+[[permission]]
+identifier = "deny-get-timesheet"
+description = "Denies the get_timesheet command without any pre-configured scope."
+commands.deny = ["get_timesheet"]

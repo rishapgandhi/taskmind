@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>TaskMind records your voice in meetings you choose to record. Audio stays on this computer.</string>
+  <key>NSAudioCaptureUsageDescription</key>
+  <string>TaskMind records the other participants in meetings you choose to record. Audio stays on this computer.</string>
+</dict>
+</plist>

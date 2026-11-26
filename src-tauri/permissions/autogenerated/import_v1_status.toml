@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-import-v1-status"
+description = "Enables the import_v1_status command without any pre-configured scope."
+commands.allow = ["import_v1_status"]
+
+[[permission]]
+identifier = "deny-import-v1-status"
+description = "Denies the import_v1_status command without any pre-configured scope."
+commands.deny = ["import_v1_status"]

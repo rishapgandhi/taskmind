@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-export-timesheet"
+description = "Enables the export_timesheet command without any pre-configured scope."
+commands.allow = ["export_timesheet"]
+
+[[permission]]
+identifier = "deny-export-timesheet"
+description = "Denies the export_timesheet command without any pre-configured scope."
+commands.deny = ["export_timesheet"]
