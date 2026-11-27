@@ -224,3 +224,23 @@ mod tests {
         assert!(env[17] < 0.01);
     }
 }
+
+#[cfg(test)]
+mod inspect {
+    /// Loudness per 30 s of a real recording: `TASKMIND_INSPECT=file.ogg cargo test inspect_levels -- --ignored --nocapture`
+    #[test]
+    #[ignore = "inspects a real file"]
+    fn inspect_levels() {
+        let path = std::path::PathBuf::from(std::env::var("TASKMIND_INSPECT").unwrap());
+        let env = super::envelope(&path, 48_000 * 30).unwrap();
+        for (i, r) in env.iter().enumerate() {
+            let db = 20.0 * r.max(1e-9).log10();
+            eprintln!(
+                "{:>5}s  {:>6.1} dBFS  {}",
+                i * 30,
+                db,
+                "#".repeat(((db + 60.0).max(0.0) / 2.0) as usize)
+            );
+        }
+    }
+}

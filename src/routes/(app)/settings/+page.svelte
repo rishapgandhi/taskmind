@@ -27,7 +27,8 @@
   import { transcription } from "$lib/transcription.svelte";
 
   const LANGUAGES: [string, string][] = [
-    ["auto", "Detect automatically"],
+    ["translate", "Mixed / Hinglish → English text (recommended for Hindi + English meetings)"],
+    ["auto", "Detect automatically (one language per meeting)"],
     ["en", "English"],
     ["hi", "Hindi"],
     ["es", "Spanish"],

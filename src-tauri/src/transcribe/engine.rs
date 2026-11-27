@@ -55,10 +55,16 @@ pub fn run(
     let mut raw = Vec::with_capacity(FRAME * 50);
     let mut chunk: Vec<f32> = Vec::with_capacity(CHUNK_SAMPLES + RATE_16K);
     let mut offset_ms: i64 = 0;
-    let mut language: Option<String> = match job.language {
-        "" | "auto" => None,
-        code => Some(code.to_string()),
+    // "translate": any language in, English text out (best for Hindi + English meetings).
+    let translate = job.language == "translate";
+    let fixed: Option<&str> = match job.language {
+        "" | "auto" | "translate" => None,
+        code => Some(code),
     };
+    // Language is detected per chunk (a wrong guess on the first 30 s no longer locks the
+    // whole meeting); the most common one is reported.
+    let mut detected: Vec<String> = Vec::new();
+    let mut last_text = String::new();
     let total_ms = job.duration_ms.unwrap_or(0).max(1) as f32;
     let mut segments = Vec::new();
     let mut more = true;
@@ -80,7 +86,12 @@ pub fn run(
         let chunk_ms = (chunk.len() * 1000 / RATE_16K) as f32;
         let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
         params.set_n_threads(job.threads);
-        params.set_language(Some(language.as_deref().unwrap_or("auto")));
+        params.set_language(Some(fixed.unwrap_or("auto")));
+        params.set_translate(translate);
+        // Do not feed the previous window's text back in: that is how one bad guess turns
+        // into the same phrase repeated for minutes.
+        params.set_no_context(true);
+        params.set_suppress_nst(true);
         params.set_print_progress(false);
         params.set_print_realtime(false);
         params.set_print_timestamps(false);
@@ -107,8 +118,10 @@ pub fn run(
             }
         })?;
 
-        if language.is_none() {
-            language = whisper_rs::get_lang_str(state.full_lang_id_from_state()).map(String::from);
+        if fixed.is_none()
+            && let Some(code) = whisper_rs::get_lang_str(state.full_lang_id_from_state())
+        {
+            detected.push(code.to_string());
         }
 
         for seg in state.as_iter() {
@@ -116,7 +129,8 @@ pub fn run(
                 .to_str_lossy()
                 .map(|t| t.trim().to_string())
                 .unwrap_or_default();
-            if is_noise(&text) {
+            let text = collapse_repeats(&text);
+            if is_noise(&text) || text == last_text {
                 continue;
             }
             let start_ms = offset_ms + seg.start_timestamp() * 10;
@@ -125,6 +139,7 @@ pub fn run(
             if speaker == Speaker::Silence {
                 continue;
             }
+            last_text.clone_from(&text);
             segments.push(SegmentRow {
                 start_ms,
                 end_ms,
@@ -136,6 +151,11 @@ pub fn run(
         on_progress((offset_ms as f32 / total_ms).min(1.0));
     }
 
+    let language = match (fixed, translate) {
+        (Some(code), _) => Some(code.to_string()),
+        (None, true) => Some("en".to_string()),
+        (None, false) => most_common(&detected),
+    };
     Ok(Output { segments, language })
 }
 
@@ -158,9 +178,42 @@ fn envelope_or_none(path: &Path) -> Option<Vec<f32>> {
 }
 
 /// Whisper's markers for non-speech, e.g. "[BLANK_AUDIO]", "(music)", "[ Silence ]".
+fn most_common(items: &[String]) -> Option<String> {
+    let mut counts: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
+    for i in items {
+        *counts.entry(i.as_str()).or_default() += 1;
+    }
+    counts
+        .into_iter()
+        .max_by_key(|(_, n)| *n)
+        .map(|(k, _)| k.to_string())
+}
+
+/// Whisper loops on unclear audio ("x, y, x, y, x, y"). If the words repeat with a short
+/// period at least 3 times, keep one copy of the repeating group.
+fn collapse_repeats(text: &str) -> String {
+    let words: Vec<&str> = text.split_whitespace().collect();
+    let norm: Vec<String> = words
+        .iter()
+        .map(|w| {
+            w.trim_matches(|c: char| !c.is_alphanumeric())
+                .to_lowercase()
+        })
+        .collect();
+    let n = norm.len();
+    for period in 1..=n / 3 {
+        if (period..n).all(|i| norm[i] == norm[i % period]) {
+            let group = words[..period].join(" ");
+            return group.trim_end_matches([',', ' ']).to_string();
+        }
+    }
+    text.trim().to_string()
+}
+
 fn is_noise(text: &str) -> bool {
     let t = text.trim();
     t.is_empty()
+        || !t.chars().any(char::is_alphanumeric)
         || (t.starts_with('[') && t.ends_with(']'))
         || (t.starts_with('(') && t.ends_with(')'))
         || (t.starts_with('*') && t.ends_with('*'))
@@ -226,6 +279,31 @@ mod tests {
             assert!(is_noise(t), "{t}");
         }
         assert!(!is_noise("Hello (everyone)"));
+        assert!(is_noise(","));
+        assert!(is_noise(" ... "));
+    }
+
+    #[test]
+    fn repeats_collapse() {
+        assert_eq!(
+            collapse_repeats("Parit trainer, Parit trainer, parit trainer"),
+            "Parit trainer"
+        );
+        assert_eq!(
+            collapse_repeats(
+                "mou pa ti ruku, kare ki mou pa ti ruku, kare ki mou pa ti ruku, kare ki"
+            ),
+            "mou pa ti ruku, kare ki"
+        );
+        assert_eq!(collapse_repeats("yes yes yes yes"), "yes");
+        assert_eq!(
+            collapse_repeats("Yes, I will take the ticket."),
+            "Yes, I will take the ticket."
+        );
+        assert_eq!(
+            most_common(&["hi".into(), "en".into(), "en".into()]).as_deref(),
+            Some("en")
+        );
     }
 
     #[test]
@@ -263,13 +341,18 @@ mod hardware_tests {
     #[ignore = "needs a Whisper model and a real recording"]
     fn transcribes_real_recording() {
         let model = PathBuf::from(std::env::var("TASKMIND_TEST_MODEL").unwrap());
-        let dir = PathBuf::from(std::env::var("TASKMIND_TEST_OUT").unwrap());
+        let dir = PathBuf::from(std::env::var("TASKMIND_TEST_OUT").unwrap_or_default());
+        // Optional: TASKMIND_TEST_AUDIO=any.ogg (mix only), TASKMIND_TEST_LANG=en|hi|auto
+        let audio = std::env::var("TASKMIND_TEST_AUDIO")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| dir.join("mix.ogg"));
+        let lang = std::env::var("TASKMIND_TEST_LANG").unwrap_or_else(|_| "auto".into());
         let job = Job {
             model_path: &model,
-            audio_path: &dir.join("mix.ogg"),
+            audio_path: &audio,
             mic_track: Some(dir.join("mic.ogg")),
             system_track: Some(dir.join("system.ogg")),
-            language: "auto",
+            language: &lang,
             threads: 4,
             duration_ms: Some(10_000),
         };

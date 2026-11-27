@@ -37,7 +37,7 @@ pub const MODELS: &[ModelInfo] = &[
         id: "base",
         file: "ggml-base.bin",
         label: "Base",
-        description: "Good balance for most laptops. Recommended default.",
+        description: "Fast and light. Good for clear English meetings.",
         size_bytes: 147_951_465,
         sha256: "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe",
     },
@@ -45,7 +45,7 @@ pub const MODELS: &[ModelInfo] = &[
         id: "small",
         file: "ggml-small-q5_1.bin",
         label: "Small",
-        description: "More accurate, about 2x slower than Base.",
+        description: "Much better with accents and mixed languages (Hindi + English). About 2x slower than Base.",
         size_bytes: 190_085_487,
         sha256: "ae85e4a935d7a567bd102fe55afc16bb595bdb618e11b2fc7591bc08120411bb",
     },
@@ -75,10 +75,15 @@ pub fn recommended() -> &'static str {
             sys.total_memory()
         })
         .unwrap_or(u64::MAX);
-    if total < 7 * 1024 * 1024 * 1024 {
+    const GIB: u64 = 1024 * 1024 * 1024;
+    // Measured on a real Hinglish meeting: `small` is far better than `base` and still
+    // transcribes 15 minutes in under 2 minutes on a recent laptop.
+    if total < 7 * GIB {
         "tiny"
-    } else {
+    } else if total < 12 * GIB {
         "base"
+    } else {
+        "small"
     }
 }
 
