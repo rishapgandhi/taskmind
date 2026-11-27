@@ -1,6 +1,13 @@
 # Changelog
 
-## 2.0.0 (unreleased, alpha testing)
+## 2.0.0-alpha.3
+
+- Transcription: new "Mixed / Hinglish → English text" language option; language detected per 5-minute part instead of once; repetition loops and punctuation-only lines removed; `small` model recommended on 12 GB+ RAM.
+- AI notes: due dates are kept only if they were said in the meeting; clearer summary instructions; notes status, retry and failure reason on every meeting; Test connection button in Settings.
+- Meetings: filter by day or show all meetings grouped by day.
+- Release: macOS builds no longer fail when signing secrets are not set.
+
+## 2.0.0-alpha.1 / alpha.2
 
 First testable build of TaskMind v2, a rewrite of v1 for macOS, Windows and Linux.
 
