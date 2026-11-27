@@ -89,6 +89,8 @@ The transcript comes from automatic speech recognition and may contain mistakes;
 meaning but do not invent facts. Write in the language of the meeting. Keep the summary short and \
 concrete. List only decisions that were actually made. An action item is a task someone agreed to \
 do; set owner to \"You\" when the recorder took it on, a name if one was said, otherwise null. \
+Set due only if a deadline was actually spoken (copy the words used, e.g. \"by Friday\"); never invent dates. \
+The summary must say what was discussed and agreed, not describe the transcript. \
 Respond with JSON only, matching the requested schema.";
 
 /// Wire format from the model (snake_case), converted to `Notes`.
@@ -179,8 +181,35 @@ pub fn chunks(text: &str, max_chars: usize) -> Vec<String> {
     out
 }
 
+/// Small models invent deadlines ("2023-12-31"). Keep a due date only if the words of it
+/// were actually said in the meeting; otherwise drop it.
+pub fn drop_invented_dates(mut notes: Notes, transcript: &str) -> Notes {
+    let said = transcript.to_lowercase();
+    for item in &mut notes.action_items {
+        if let Some(due) = &item.due {
+            let words: Vec<String> = due
+                .to_lowercase()
+                .split(|c: char| !c.is_alphanumeric())
+                .filter(|w| w.len() > 1)
+                .map(String::from)
+                .collect();
+            if words.is_empty() || !words.iter().all(|w| said.contains(w.as_str())) {
+                item.due = None;
+            }
+        }
+    }
+    notes
+}
+
 /// Generate notes. Long transcripts are summarized part by part, then the partial notes merged.
 pub async fn generate(provider: &Provider, segments: &[SegmentRow]) -> Result<Notes, NotesError> {
+    let text = transcript_text(segments);
+    generate_inner(provider, segments)
+        .await
+        .map(|n| drop_invented_dates(n, &text))
+}
+
+async fn generate_inner(provider: &Provider, segments: &[SegmentRow]) -> Result<Notes, NotesError> {
     if segments.is_empty() {
         return Err(NotesError::NoTranscript);
     }
@@ -368,6 +397,38 @@ mod tests {
                 .all(|p| p.len() <= 60 || p.lines().count() == 1)
         );
         assert_eq!(parts.concat(), t.repeat(10));
+    }
+
+    #[test]
+    fn invented_dates_are_dropped() {
+        let notes = Notes {
+            summary: String::new(),
+            decisions: vec![],
+            action_items: vec![
+                ActionItem {
+                    text: "a".into(),
+                    owner: None,
+                    due: Some("2023-12-31".into()),
+                    done: false,
+                },
+                ActionItem {
+                    text: "b".into(),
+                    owner: None,
+                    due: Some("by Friday".into()),
+                    done: false,
+                },
+                ActionItem {
+                    text: "c".into(),
+                    owner: None,
+                    due: Some("next week".into()),
+                    done: false,
+                },
+            ],
+        };
+        let out = drop_invented_dates(notes, "[00:01] You: Let's ship it by Friday.");
+        assert_eq!(out.action_items[0].due, None);
+        assert_eq!(out.action_items[1].due.as_deref(), Some("by Friday"));
+        assert_eq!(out.action_items[2].due, None);
     }
 
     #[test]
